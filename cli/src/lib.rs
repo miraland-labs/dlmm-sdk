@@ -14,11 +14,11 @@ use anchor_client::{
 use anyhow::*;
 use clap::*;
 
-mod args;
-mod instructions;
+pub mod args;
+pub mod instructions;
 mod math;
 
-use args::*;
+pub use args::*;
 use instructions::initialize_customizable_permissionless_lb_pair::InitCustomizablePermissionlessLbPairParameters;
 use instructions::initialize_lb_pair::*;
 use instructions::seed_liquidity_from_operator::{
