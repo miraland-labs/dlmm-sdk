@@ -1171,31 +1171,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f46ad14479a25103f283c0f10005961cf086d8dc42205bb44c46ac563475dca6"
 
 [[package]]
-name = "cli"
-version = "0.4.0"
-dependencies = [
- "anchor-client",
- "anchor-lang",
- "anchor-spl",
- "anyhow",
- "bigdecimal",
- "bincode",
- "clap 4.5.26",
- "commons",
- "lb_clmm",
- "mpl-token-metadata",
- "proptest",
- "rand 0.8.5",
- "rust_decimal",
- "serde",
- "serde_json",
- "serde_json_any_key",
- "shellexpand",
- "spl-associated-token-account 1.1.3",
- "tokio",
-]
-
-[[package]]
 name = "colorchoice"
 version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1577,6 +1552,31 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.96",
+]
+
+[[package]]
+name = "dlmm-cli"
+version = "0.4.0"
+dependencies = [
+ "anchor-client",
+ "anchor-lang",
+ "anchor-spl",
+ "anyhow",
+ "bigdecimal",
+ "bincode",
+ "clap 4.5.26",
+ "commons",
+ "lb_clmm",
+ "mpl-token-metadata",
+ "proptest",
+ "rand 0.8.5",
+ "rust_decimal",
+ "serde",
+ "serde_json",
+ "serde_json_any_key",
+ "shellexpand",
+ "spl-associated-token-account 1.1.3",
+ "tokio",
 ]
 
 [[package]]
