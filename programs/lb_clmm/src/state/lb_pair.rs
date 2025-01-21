@@ -26,15 +26,15 @@ pub mod hack {
     use anchor_lang::prelude::*;
     #[derive(Copy, Clone, bytemuck::Zeroable, bytemuck::Pod, Debug, Default, PartialEq)]
     #[repr(C)]
-    pub struct U128(pub [u8; 16]);
+    pub struct u128(pub [u8; 16]);
 
-    impl U128 {
+    impl u128 {
         pub fn as_u128(&self) -> core::primitive::u128 {
             core::primitive::u128::from_le_bytes(self.0)
         }
 
         // fn default() -> Self {
-        //     U128([0_u8; 16])
+        //     u128([0_u8; 16])
         // }
     }
 

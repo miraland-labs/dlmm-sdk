@@ -5,7 +5,7 @@ use lb_clmm::{
     state::{
         bin::{Bin, BinArray, SwapResult},
         bin_array_bitmap_extension::BinArrayBitmapExtension,
-        lb_pair::{hack, LbPair, PairStatus, PairType},
+        lb_pair::{LbPair, PairStatus, PairType},
     },
     utils::pda::derive_bin_array_pda,
 };

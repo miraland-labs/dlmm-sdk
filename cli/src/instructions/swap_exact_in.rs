@@ -175,8 +175,8 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
     let hack_lb_pair_state: hack::LbPair = program.account(lb_pair).await?;
     let mut lb_pair_state: LbPair = LbPair::default();
 
-    let hack_reward_info_0 = lb_pair_state.reward_infos[0];
-    let hack_reward_info_1 = lb_pair_state.reward_infos[1];
+    let hack_reward_info_0 = hack_lb_pair_state.reward_infos[0];
+    let hack_reward_info_1 = hack_lb_pair_state.reward_infos[1];
 
     let mut reward_info_0: RewardInfo = RewardInfo::default();
     let mut reward_info_1: RewardInfo = RewardInfo::default();
@@ -186,7 +186,7 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
     reward_info_0.funder = hack_reward_info_0.funder;
     reward_info_0.reward_duration = hack_reward_info_0.reward_duration;
     reward_info_0.reward_duration_end = hack_reward_info_0.reward_duration_end;
-    reward_info_0.reward_rate = hack_reward_info_0.reward_rate;
+    reward_info_0.reward_rate = hack_reward_info_0.reward_rate.as_u128();
     reward_info_0.last_update_time = hack_reward_info_0.last_update_time;
     reward_info_0.cumulative_seconds_with_empty_liquidity_reward =
         hack_reward_info_0.cumulative_seconds_with_empty_liquidity_reward;
@@ -196,7 +196,7 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
     reward_info_1.funder = hack_reward_info_1.funder;
     reward_info_1.reward_duration = hack_reward_info_1.reward_duration;
     reward_info_1.reward_duration_end = hack_reward_info_1.reward_duration_end;
-    reward_info_1.reward_rate = hack_reward_info_1.reward_rate;
+    reward_info_1.reward_rate = hack_reward_info_1.reward_rate.as_u128();
     reward_info_1.last_update_time = hack_reward_info_1.last_update_time;
     reward_info_1.cumulative_seconds_with_empty_liquidity_reward =
         hack_reward_info_1.cumulative_seconds_with_empty_liquidity_reward;
