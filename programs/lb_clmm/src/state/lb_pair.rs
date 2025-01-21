@@ -29,9 +29,9 @@ pub mod hack {
 
     #[derive(Copy, Clone, bytemuck::Zeroable, bytemuck::Pod, Debug, Default, PartialEq)]
     #[repr(C)]
-    pub struct u128(pub [u8; 16]);
+    pub struct U128(pub [u8; 16]);
 
-    impl u128 {
+    impl U128 {
         pub fn as_u128(&self) -> core::primitive::u128 {
             core::primitive::u128::from_le_bytes(self.0)
         }
@@ -42,7 +42,7 @@ pub mod hack {
     }
 
     #[account(zero_copy)]
-    #[derive(InitSpace, Debug)]
+    #[derive(Debug)]
     pub struct LbPair {
         pub parameters: super::StaticParameters,
         pub v_parameters: super::VariableParameters,
@@ -118,7 +118,7 @@ pub mod hack {
 
     /// Stores the state relevant for tracking liquidity mining rewards
     #[zero_copy]
-    #[derive(InitSpace, Default, Debug, PartialEq)]
+    #[derive(Default, Debug, PartialEq)]
     pub struct RewardInfo {
         /// Reward token mint.
         pub mint: Pubkey,
@@ -131,7 +131,7 @@ pub mod hack {
         /// TODO check whether we need to store it in pool
         pub reward_duration_end: u64, // 8
         /// TODO check whether we need to store it in pool
-        pub reward_rate: u128, // 8
+        pub reward_rate: U128, // 8
         /// The last time reward states were updated.
         pub last_update_time: u64, // 8
         /// Accumulated seconds where when farm distribute rewards, but the bin is empty. The reward will be accumulated for next reward time window.
