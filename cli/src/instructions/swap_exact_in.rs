@@ -175,6 +175,7 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
     // let hack_lb_pair_state: hack::LbPair = program.account(lb_pair).await?;
 
     let data_bytes = program.rpc().get_account_data(&lb_pair)?;
+    assert_eq!(data_bytes.len(), 904);
     let hack_lb_pair_state = hack::LbPair::try_from_bytes(&data_bytes[8..])?;
 
     let mut lb_pair_state: LbPair = LbPair::default();
