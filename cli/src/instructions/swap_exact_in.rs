@@ -20,7 +20,7 @@ use lb_clmm::instruction;
 
 use lb_clmm::state::bin::BinArray;
 use lb_clmm::state::bin_array_bitmap_extension::BinArrayBitmapExtension;
-use lb_clmm::state::lb_pair::LbPair;
+use lb_clmm::state::lb_pair::{hack, LbPair, RewardInfo};
 use lb_clmm::utils::pda::*;
 
 #[derive(Debug)]
@@ -170,7 +170,69 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
         swap_for_y,
     } = params;
 
-    let lb_pair_state: LbPair = program.account(lb_pair).await?;
+    // MI
+    // let lb_pair_state: LbPair = program.account(lb_pair).await?;
+    let hack_lb_pair_state: hack::LbPair = program.account(lb_pair).await?;
+    let mut lb_pair_state: LbPair = LbPair::default();
+
+    let hack_reward_info_0 = lb_pair_state.reward_infos[0];
+    let hack_reward_info_1 = lb_pair_state.reward_infos[1];
+
+    let mut reward_info_0: RewardInfo = RewardInfo::default();
+    let mut reward_info_1: RewardInfo = RewardInfo::default();
+
+    reward_info_0.mint = hack_reward_info_0.mint;
+    reward_info_0.vault = hack_reward_info_0.vault;
+    reward_info_0.funder = hack_reward_info_0.funder;
+    reward_info_0.reward_duration = hack_reward_info_0.reward_duration;
+    reward_info_0.reward_duration_end = hack_reward_info_0.reward_duration_end;
+    reward_info_0.reward_rate = hack_reward_info_0.reward_rate;
+    reward_info_0.last_update_time = hack_reward_info_0.last_update_time;
+    reward_info_0.cumulative_seconds_with_empty_liquidity_reward =
+        hack_reward_info_0.cumulative_seconds_with_empty_liquidity_reward;
+
+    reward_info_1.mint = hack_reward_info_1.mint;
+    reward_info_1.vault = hack_reward_info_1.vault;
+    reward_info_1.funder = hack_reward_info_1.funder;
+    reward_info_1.reward_duration = hack_reward_info_1.reward_duration;
+    reward_info_1.reward_duration_end = hack_reward_info_1.reward_duration_end;
+    reward_info_1.reward_rate = hack_reward_info_1.reward_rate;
+    reward_info_1.last_update_time = hack_reward_info_1.last_update_time;
+    reward_info_1.cumulative_seconds_with_empty_liquidity_reward =
+        hack_reward_info_1.cumulative_seconds_with_empty_liquidity_reward;
+
+    lb_pair_state.parameters = hack_lb_pair_state.parameters;
+    lb_pair_state.v_parameters = hack_lb_pair_state.v_parameters;
+    lb_pair_state.bump_seed = hack_lb_pair_state.bump_seed;
+    lb_pair_state.bin_step_seed = hack_lb_pair_state.bin_step_seed;
+    lb_pair_state.pair_type = hack_lb_pair_state.pair_type;
+    lb_pair_state.active_id = hack_lb_pair_state.active_id;
+    lb_pair_state.bin_step = hack_lb_pair_state.bin_step;
+    lb_pair_state.status = hack_lb_pair_state.status;
+    lb_pair_state.require_base_factor_seed = hack_lb_pair_state.require_base_factor_seed;
+    lb_pair_state.base_factor_seed = hack_lb_pair_state.base_factor_seed;
+    lb_pair_state.activation_type = hack_lb_pair_state.activation_type;
+    lb_pair_state._padding_0 = hack_lb_pair_state._padding_0;
+    lb_pair_state.token_x_mint = hack_lb_pair_state.token_x_mint;
+    lb_pair_state.token_y_mint = hack_lb_pair_state.token_y_mint;
+    lb_pair_state.reserve_x = hack_lb_pair_state.reserve_x;
+    lb_pair_state.reserve_y = hack_lb_pair_state.reserve_y;
+    lb_pair_state.protocol_fee = hack_lb_pair_state.protocol_fee;
+    lb_pair_state._padding_1 = hack_lb_pair_state._padding_1;
+    lb_pair_state.reward_infos = [reward_info_0, reward_info_1];
+    lb_pair_state.oracle = hack_lb_pair_state.oracle;
+    lb_pair_state.bin_array_bitmap = hack_lb_pair_state.bin_array_bitmap;
+    lb_pair_state.last_updated_at = hack_lb_pair_state.last_updated_at;
+    lb_pair_state._padding_2 = hack_lb_pair_state._padding_2;
+    lb_pair_state.pre_activation_swap_address = hack_lb_pair_state.pre_activation_swap_address;
+    lb_pair_state.base_key = hack_lb_pair_state.base_key;
+    lb_pair_state.activation_point = hack_lb_pair_state.activation_point;
+    lb_pair_state.pre_activation_duration = hack_lb_pair_state.pre_activation_duration;
+    lb_pair_state._padding_3 = hack_lb_pair_state._padding_3;
+    lb_pair_state._padding_4 = hack_lb_pair_state._padding_4;
+    lb_pair_state.creator = hack_lb_pair_state.creator;
+    lb_pair_state._reserved = hack_lb_pair_state._reserved;
+    // End copy
 
     let (user_token_in, user_token_out) = if swap_for_y {
         (
