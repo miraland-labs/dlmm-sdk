@@ -24,6 +24,9 @@ use std::ops::Shr;
 // which is caused by newer rust version (layout change)
 pub mod hack {
     use anchor_lang::prelude::*;
+    use bytemuck::{Pod, Zeroable};
+    use solana_program::{program_error::ProgramError, pubkey::Pubkey};
+
     #[derive(Copy, Clone, bytemuck::Zeroable, bytemuck::Pod, Debug, Default, PartialEq)]
     #[repr(C)]
     pub struct u128(pub [u8; 16]);
@@ -100,6 +103,17 @@ pub mod hack {
         pub creator: Pubkey,
         /// Reserved space for future use
         pub _reserved: [u8; 24],
+    }
+
+    impl LbPair {
+        pub fn try_from_bytes(data: &[u8]) -> core::result::Result<&Self, ProgramError> {
+            bytemuck::try_from_bytes::<Self>(data).or(Err(ProgramError::InvalidAccountData))
+        }
+        pub fn try_from_bytes_mut(
+            data: &mut [u8],
+        ) -> core::result::Result<&mut Self, ProgramError> {
+            bytemuck::try_from_bytes_mut::<Self>(data).or(Err(ProgramError::InvalidAccountData))
+        }
     }
 
     /// Stores the state relevant for tracking liquidity mining rewards
