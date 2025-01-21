@@ -27,7 +27,7 @@ pub mod hack {
     use bytemuck::{Pod, Zeroable};
     use solana_program::{program_error::ProgramError, pubkey::Pubkey};
 
-    #[derive(Copy, Clone, bytemuck::Zeroable, bytemuck::Pod, Debug, Default, PartialEq)]
+    #[derive(Copy, Clone, bytemuck::Zeroable, bytemuck::Pod, Debug)]
     #[repr(C)]
     pub struct U128(pub [u8; 16]);
 
@@ -35,14 +35,12 @@ pub mod hack {
         pub fn as_u128(&self) -> core::primitive::u128 {
             core::primitive::u128::from_le_bytes(self.0)
         }
-
-        // fn default() -> Self {
-        //     u128([0_u8; 16])
-        // }
     }
 
-    #[account(zero_copy)]
-    #[derive(Debug)]
+    // #[account(zero_copy)]
+    // #[derive(Debug)]
+    #[repr(C)]
+    #[derive(Clone, Copy, Debug, Pod, Zeroable)]
     pub struct LbPair {
         pub parameters: super::StaticParameters,
         pub v_parameters: super::VariableParameters,
@@ -117,8 +115,11 @@ pub mod hack {
     }
 
     /// Stores the state relevant for tracking liquidity mining rewards
-    #[zero_copy]
-    #[derive(Default, Debug, PartialEq)]
+    // #[zero_copy]
+    // #[derive(Default, Debug, PartialEq)]
+
+    #[repr(C)]
+    #[derive(Clone, Copy, Debug, Pod, Zeroable)]
     pub struct RewardInfo {
         /// Reward token mint.
         pub mint: Pubkey,
@@ -136,6 +137,18 @@ pub mod hack {
         pub last_update_time: u64, // 8
         /// Accumulated seconds where when farm distribute rewards, but the bin is empty. The reward will be accumulated for next reward time window.
         pub cumulative_seconds_with_empty_liquidity_reward: u64,
+    }
+
+    impl RewardInfo {
+        pub fn try_from_bytes(data: &[u8]) -> core::result::Result<&Self, ProgramError> {
+            bytemuck::try_from_bytes::<Self>(&data[..]).or(Err(ProgramError::InvalidAccountData))
+        }
+        pub fn try_from_bytes_mut(
+            data: &mut [u8],
+        ) -> core::result::Result<&mut Self, ProgramError> {
+            bytemuck::try_from_bytes_mut::<Self>(&mut data[..])
+                .or(Err(ProgramError::InvalidAccountData))
+        }
     }
 }
 
