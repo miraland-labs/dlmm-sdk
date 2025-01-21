@@ -238,6 +238,7 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
     lb_pair_state.creator = hack_lb_pair_state.creator;
     lb_pair_state._reserved = hack_lb_pair_state._reserved;
     // End copy
+    println!("End of copy");
 
     let (user_token_in, user_token_out) = if swap_for_y {
         (
