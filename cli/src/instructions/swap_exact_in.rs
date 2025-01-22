@@ -19,7 +19,7 @@ use lb_clmm::constants::BASIS_POINT_MAX;
 use lb_clmm::instruction;
 
 use lb_clmm::state::bin::BinArray;
-use lb_clmm::state::bin_array_bitmap_extension::BinArrayBitmapExtension;
+use lb_clmm::state::bin_array_bitmap_extension::{self, BinArrayBitmapExtension};
 use lb_clmm::state::lb_pair::{hack, LbPair, RewardInfo};
 use lb_clmm::utils::pda::*;
 
@@ -254,10 +254,24 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
 
     let (bitmap_extension_key, _bump) = derive_bin_array_bitmap_extension(lb_pair);
 
-    let bitmap_extension = program
-        .account::<BinArrayBitmapExtension>(bitmap_extension_key)
-        .await
-        .ok();
+    // MI: use hack way
+    // let bitmap_extension = program
+    //     .account::<BinArrayBitmapExtension>(bitmap_extension_key)
+    //     .await
+    //     .ok();
+
+    let data_bytes = program.rpc().get_account_data(&bitmap_extension_key)?;
+    let hack_bitmap_extension =
+        bin_array_bitmap_extension::hack::BinArrayBitmapExtension::try_from_bytes(
+            &data_bytes[8..],
+        )?;
+
+    let mut bitmap_extension: BinArrayBitmapExtension = BinArrayBitmapExtension::default();
+    bitmap_extension.lb_pair = hack_bitmap_extension.lb_pair;
+    bitmap_extension.positive_bin_array_bitmap = hack_bitmap_extension.positive_bin_array_bitmap;
+    bitmap_extension.negative_bin_array_bitmap = hack_bitmap_extension.negative_bin_array_bitmap;
+
+    let bitmap_extension = Some(bitmap_extension);
 
     let bin_arrays_for_swap = get_bin_array_pubkeys_for_swap(
         lb_pair,

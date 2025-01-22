@@ -6,6 +6,48 @@ use anchor_lang::prelude::*;
 use ruint::aliases::U512;
 use std::ops::BitXor;
 
+// MI: hack workaround for decode err: from_bytes>TargetAlignmentGreaterAndInputNotAligned
+// which is caused by newer rust version (layout change)
+pub mod hack {
+    use super::EXTENSION_BINARRAY_BITMAP_SIZE;
+    use anchor_lang::prelude::*;
+    use bytemuck::{Pod, Zeroable};
+    use solana_program::{program_error::ProgramError, pubkey::Pubkey};
+
+    #[repr(C)]
+    #[derive(Clone, Copy, Debug, Pod, Zeroable)]
+    pub struct BinArrayBitmapExtension {
+        pub lb_pair: Pubkey,
+        /// Packed initialized bin array state for start_bin_index is positive
+        pub positive_bin_array_bitmap: [[u64; 8]; EXTENSION_BINARRAY_BITMAP_SIZE],
+        /// Packed initialized bin array state for start_bin_index is negative
+        pub negative_bin_array_bitmap: [[u64; 8]; EXTENSION_BINARRAY_BITMAP_SIZE],
+    }
+
+    impl Default for BinArrayBitmapExtension {
+        #[inline]
+        fn default() -> BinArrayBitmapExtension {
+            BinArrayBitmapExtension {
+                lb_pair: Pubkey::default(),
+                positive_bin_array_bitmap: [[0; 8]; EXTENSION_BINARRAY_BITMAP_SIZE],
+                negative_bin_array_bitmap: [[0; 8]; EXTENSION_BINARRAY_BITMAP_SIZE],
+            }
+        }
+    }
+
+    impl BinArrayBitmapExtension {
+        pub fn try_from_bytes(data: &[u8]) -> core::result::Result<&Self, ProgramError> {
+            bytemuck::try_from_bytes::<Self>(&data[..]).or(Err(ProgramError::InvalidAccountData))
+        }
+        pub fn try_from_bytes_mut(
+            data: &mut [u8],
+        ) -> core::result::Result<&mut Self, ProgramError> {
+            bytemuck::try_from_bytes_mut::<Self>(&mut data[..])
+                .or(Err(ProgramError::InvalidAccountData))
+        }
+    }
+}
+
 #[account(zero_copy)]
 #[derive(Debug, InitSpace)]
 pub struct BinArrayBitmapExtension {
