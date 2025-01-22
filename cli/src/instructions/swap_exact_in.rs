@@ -174,7 +174,7 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
     // let lb_pair_state: LbPair = program.account(lb_pair).await?;
     // let hack_lb_pair_state: hack::LbPair = program.account(lb_pair).await?;
 
-    let data_bytes = program.rpc().get_account_data(&lb_pair)?;
+    let data_bytes = program.async_rpc().get_account_data(&lb_pair).await?;
     assert_eq!(data_bytes.len(), 904);
     let hack_lb_pair_state = hack::LbPair::try_from_bytes(&data_bytes[8..])?;
 
@@ -238,7 +238,7 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
     lb_pair_state.creator = hack_lb_pair_state.creator;
     lb_pair_state._reserved = hack_lb_pair_state._reserved;
     // End copy
-    println!("End of copy");
+    println!("Pass through lb_pair_state workaround copy");
 
     let (user_token_in, user_token_out) = if swap_for_y {
         (
@@ -265,7 +265,10 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
     //     .await
     //     .ok();
 
-    let data_bytes = program.rpc().get_account_data(&bitmap_extension_key)?;
+    let data_bytes = program
+        .async_rpc()
+        .get_account_data(&bitmap_extension_key)
+        .await?;
     println!(
         "Pass through get_account_data of bitmap_extension_key: {}",
         &bitmap_extension_key
