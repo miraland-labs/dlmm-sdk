@@ -254,6 +254,11 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
 
     let (bitmap_extension_key, _bump) = derive_bin_array_bitmap_extension(lb_pair);
 
+    println!(
+        "derived bitmap_extension_key: {} from lb_pair: {}",
+        &bitmap_extension_key, &lb_pair
+    );
+
     // MI: use hack way
     // let bitmap_extension = program
     //     .account::<BinArrayBitmapExtension>(bitmap_extension_key)
@@ -261,6 +266,11 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
     //     .ok();
 
     let data_bytes = program.rpc().get_account_data(&bitmap_extension_key)?;
+    println!(
+        "Pass through get_account_data of bitmap_extension_key: {}",
+        &bitmap_extension_key
+    );
+
     let hack_bitmap_extension =
         bin_array_bitmap_extension::hack::BinArrayBitmapExtension::try_from_bytes(
             &data_bytes[8..],
