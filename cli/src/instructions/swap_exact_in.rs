@@ -170,75 +170,74 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
         swap_for_y,
     } = params;
 
-    // MI
-    // let lb_pair_state: LbPair = program.account(lb_pair).await?;
-    // let hack_lb_pair_state: hack::LbPair = program.account(lb_pair).await?;
+    let lb_pair_state: LbPair = program.account(lb_pair).await?;
 
-    let data_bytes = program.async_rpc().get_account_data(&lb_pair).await?;
-    assert_eq!(data_bytes.len(), 904);
-    let hack_lb_pair_state = hack::LbPair::try_from_bytes(&data_bytes[8..])?;
+    // // MI
+    // let data_bytes = program.async_rpc().get_account_data(&lb_pair).await?;
+    // assert_eq!(data_bytes.len(), 904);
+    // let hack_lb_pair_state = hack::LbPair::try_from_bytes(&data_bytes[8..])?;
 
-    let mut lb_pair_state: LbPair = LbPair::default();
+    // let mut lb_pair_state: LbPair = LbPair::default();
 
-    let hack_reward_info_0 = hack_lb_pair_state.reward_infos[0];
-    let hack_reward_info_1 = hack_lb_pair_state.reward_infos[1];
+    // let hack_reward_info_0 = hack_lb_pair_state.reward_infos[0];
+    // let hack_reward_info_1 = hack_lb_pair_state.reward_infos[1];
 
-    let mut reward_info_0: RewardInfo = RewardInfo::default();
-    let mut reward_info_1: RewardInfo = RewardInfo::default();
+    // let mut reward_info_0: RewardInfo = RewardInfo::default();
+    // let mut reward_info_1: RewardInfo = RewardInfo::default();
 
-    reward_info_0.mint = hack_reward_info_0.mint;
-    reward_info_0.vault = hack_reward_info_0.vault;
-    reward_info_0.funder = hack_reward_info_0.funder;
-    reward_info_0.reward_duration = hack_reward_info_0.reward_duration;
-    reward_info_0.reward_duration_end = hack_reward_info_0.reward_duration_end;
-    reward_info_0.reward_rate = hack_reward_info_0.reward_rate.as_u128();
-    reward_info_0.last_update_time = hack_reward_info_0.last_update_time;
-    reward_info_0.cumulative_seconds_with_empty_liquidity_reward =
-        hack_reward_info_0.cumulative_seconds_with_empty_liquidity_reward;
+    // reward_info_0.mint = hack_reward_info_0.mint;
+    // reward_info_0.vault = hack_reward_info_0.vault;
+    // reward_info_0.funder = hack_reward_info_0.funder;
+    // reward_info_0.reward_duration = hack_reward_info_0.reward_duration;
+    // reward_info_0.reward_duration_end = hack_reward_info_0.reward_duration_end;
+    // reward_info_0.reward_rate = hack_reward_info_0.reward_rate.as_u128();
+    // reward_info_0.last_update_time = hack_reward_info_0.last_update_time;
+    // reward_info_0.cumulative_seconds_with_empty_liquidity_reward =
+    //     hack_reward_info_0.cumulative_seconds_with_empty_liquidity_reward;
 
-    reward_info_1.mint = hack_reward_info_1.mint;
-    reward_info_1.vault = hack_reward_info_1.vault;
-    reward_info_1.funder = hack_reward_info_1.funder;
-    reward_info_1.reward_duration = hack_reward_info_1.reward_duration;
-    reward_info_1.reward_duration_end = hack_reward_info_1.reward_duration_end;
-    reward_info_1.reward_rate = hack_reward_info_1.reward_rate.as_u128();
-    reward_info_1.last_update_time = hack_reward_info_1.last_update_time;
-    reward_info_1.cumulative_seconds_with_empty_liquidity_reward =
-        hack_reward_info_1.cumulative_seconds_with_empty_liquidity_reward;
+    // reward_info_1.mint = hack_reward_info_1.mint;
+    // reward_info_1.vault = hack_reward_info_1.vault;
+    // reward_info_1.funder = hack_reward_info_1.funder;
+    // reward_info_1.reward_duration = hack_reward_info_1.reward_duration;
+    // reward_info_1.reward_duration_end = hack_reward_info_1.reward_duration_end;
+    // reward_info_1.reward_rate = hack_reward_info_1.reward_rate.as_u128();
+    // reward_info_1.last_update_time = hack_reward_info_1.last_update_time;
+    // reward_info_1.cumulative_seconds_with_empty_liquidity_reward =
+    //     hack_reward_info_1.cumulative_seconds_with_empty_liquidity_reward;
 
-    lb_pair_state.parameters = hack_lb_pair_state.parameters;
-    lb_pair_state.v_parameters = hack_lb_pair_state.v_parameters;
-    lb_pair_state.bump_seed = hack_lb_pair_state.bump_seed;
-    lb_pair_state.bin_step_seed = hack_lb_pair_state.bin_step_seed;
-    lb_pair_state.pair_type = hack_lb_pair_state.pair_type;
-    lb_pair_state.active_id = hack_lb_pair_state.active_id;
-    lb_pair_state.bin_step = hack_lb_pair_state.bin_step;
-    lb_pair_state.status = hack_lb_pair_state.status;
-    lb_pair_state.require_base_factor_seed = hack_lb_pair_state.require_base_factor_seed;
-    lb_pair_state.base_factor_seed = hack_lb_pair_state.base_factor_seed;
-    lb_pair_state.activation_type = hack_lb_pair_state.activation_type;
-    lb_pair_state._padding_0 = hack_lb_pair_state._padding_0;
-    lb_pair_state.token_x_mint = hack_lb_pair_state.token_x_mint;
-    lb_pair_state.token_y_mint = hack_lb_pair_state.token_y_mint;
-    lb_pair_state.reserve_x = hack_lb_pair_state.reserve_x;
-    lb_pair_state.reserve_y = hack_lb_pair_state.reserve_y;
-    lb_pair_state.protocol_fee = hack_lb_pair_state.protocol_fee;
-    lb_pair_state._padding_1 = hack_lb_pair_state._padding_1;
-    lb_pair_state.reward_infos = [reward_info_0, reward_info_1];
-    lb_pair_state.oracle = hack_lb_pair_state.oracle;
-    lb_pair_state.bin_array_bitmap = hack_lb_pair_state.bin_array_bitmap;
-    lb_pair_state.last_updated_at = hack_lb_pair_state.last_updated_at;
-    lb_pair_state._padding_2 = hack_lb_pair_state._padding_2;
-    lb_pair_state.pre_activation_swap_address = hack_lb_pair_state.pre_activation_swap_address;
-    lb_pair_state.base_key = hack_lb_pair_state.base_key;
-    lb_pair_state.activation_point = hack_lb_pair_state.activation_point;
-    lb_pair_state.pre_activation_duration = hack_lb_pair_state.pre_activation_duration;
-    lb_pair_state._padding_3 = hack_lb_pair_state._padding_3;
-    lb_pair_state._padding_4 = hack_lb_pair_state._padding_4;
-    lb_pair_state.creator = hack_lb_pair_state.creator;
-    lb_pair_state._reserved = hack_lb_pair_state._reserved;
-    // End copy
-    println!("Pass through lb_pair_state workaround copy");
+    // lb_pair_state.parameters = hack_lb_pair_state.parameters;
+    // lb_pair_state.v_parameters = hack_lb_pair_state.v_parameters;
+    // lb_pair_state.bump_seed = hack_lb_pair_state.bump_seed;
+    // lb_pair_state.bin_step_seed = hack_lb_pair_state.bin_step_seed;
+    // lb_pair_state.pair_type = hack_lb_pair_state.pair_type;
+    // lb_pair_state.active_id = hack_lb_pair_state.active_id;
+    // lb_pair_state.bin_step = hack_lb_pair_state.bin_step;
+    // lb_pair_state.status = hack_lb_pair_state.status;
+    // lb_pair_state.require_base_factor_seed = hack_lb_pair_state.require_base_factor_seed;
+    // lb_pair_state.base_factor_seed = hack_lb_pair_state.base_factor_seed;
+    // lb_pair_state.activation_type = hack_lb_pair_state.activation_type;
+    // lb_pair_state._padding_0 = hack_lb_pair_state._padding_0;
+    // lb_pair_state.token_x_mint = hack_lb_pair_state.token_x_mint;
+    // lb_pair_state.token_y_mint = hack_lb_pair_state.token_y_mint;
+    // lb_pair_state.reserve_x = hack_lb_pair_state.reserve_x;
+    // lb_pair_state.reserve_y = hack_lb_pair_state.reserve_y;
+    // lb_pair_state.protocol_fee = hack_lb_pair_state.protocol_fee;
+    // lb_pair_state._padding_1 = hack_lb_pair_state._padding_1;
+    // lb_pair_state.reward_infos = [reward_info_0, reward_info_1];
+    // lb_pair_state.oracle = hack_lb_pair_state.oracle;
+    // lb_pair_state.bin_array_bitmap = hack_lb_pair_state.bin_array_bitmap;
+    // lb_pair_state.last_updated_at = hack_lb_pair_state.last_updated_at;
+    // lb_pair_state._padding_2 = hack_lb_pair_state._padding_2;
+    // lb_pair_state.pre_activation_swap_address = hack_lb_pair_state.pre_activation_swap_address;
+    // lb_pair_state.base_key = hack_lb_pair_state.base_key;
+    // lb_pair_state.activation_point = hack_lb_pair_state.activation_point;
+    // lb_pair_state.pre_activation_duration = hack_lb_pair_state.pre_activation_duration;
+    // lb_pair_state._padding_3 = hack_lb_pair_state._padding_3;
+    // lb_pair_state._padding_4 = hack_lb_pair_state._padding_4;
+    // lb_pair_state.creator = hack_lb_pair_state.creator;
+    // lb_pair_state._reserved = hack_lb_pair_state._reserved;
+    // // End copy
+    // println!("Pass through lb_pair_state workaround copy");
 
     let (user_token_in, user_token_out) = if swap_for_y {
         (
@@ -254,57 +253,47 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
 
     let (bitmap_extension_key, _bump) = derive_bin_array_bitmap_extension(lb_pair);
 
-    println!(
-        "derived bitmap_extension_key: {} from lb_pair: {}",
-        &bitmap_extension_key, &lb_pair
-    );
+    // // MI
+    // println!(
+    //     "derived bitmap_extension_key: {} from lb_pair: {}",
+    //     &bitmap_extension_key, &lb_pair
+    // );
 
-    // let bitmap_extension = program
-    //     .account::<BinArrayBitmapExtension>(bitmap_extension_key)
-    //     .await
-    //     .ok();
-
-    // MI: use hack way
-    let data_bytes = program
-        .async_rpc()
-        .get_account_data(&bitmap_extension_key)
+    let bitmap_extension = program
+        .account::<BinArrayBitmapExtension>(bitmap_extension_key)
         .await
         .ok();
 
-    // let config = program.async_rpc().commitment();
+    // // MI: use hack way
     // let data_bytes = program
     //     .async_rpc()
-    //     .get_account_with_commitment(&bitmap_extension_key, config)
-    //     .await?
-    //     .value
-    //     .ok_or(anchor_client::ClientError::AccountNotFound)?
-    //     .data;
+    //     .get_account_data(&bitmap_extension_key)
+    //     .await
+    //     .ok();
 
-    println!(
-        "Pass through get_account_data of bitmap_extension_key: {} and date_bytes is {:#?}",
-        &bitmap_extension_key, data_bytes
-    );
+    // println!(
+    //     "Pass through get_account_data of bitmap_extension_key: {} and date_bytes is {:#?}",
+    //     &bitmap_extension_key, data_bytes
+    // );
 
-    let bitmap_extension = if data_bytes.is_some() {
-        let exact_data_bytes = &data_bytes.unwrap()[8..];
-        let hack_bitmap_extension =
-            bin_array_bitmap_extension::hack::BinArrayBitmapExtension::try_from_bytes(
-                &exact_data_bytes,
-            )?;
+    // let bitmap_extension = if data_bytes.is_some() {
+    //     let exact_data_bytes = &data_bytes.unwrap()[8..];
+    //     let hack_bitmap_extension =
+    //         bin_array_bitmap_extension::hack::BinArrayBitmapExtension::try_from_bytes(
+    //             &exact_data_bytes,
+    //         )?;
 
-        let mut bitmap_extension: BinArrayBitmapExtension = BinArrayBitmapExtension::default();
-        bitmap_extension.lb_pair = hack_bitmap_extension.lb_pair;
-        bitmap_extension.positive_bin_array_bitmap =
-            hack_bitmap_extension.positive_bin_array_bitmap;
-        bitmap_extension.negative_bin_array_bitmap =
-            hack_bitmap_extension.negative_bin_array_bitmap;
+    //     let mut bitmap_extension: BinArrayBitmapExtension = BinArrayBitmapExtension::default();
+    //     bitmap_extension.lb_pair = hack_bitmap_extension.lb_pair;
+    //     bitmap_extension.positive_bin_array_bitmap =
+    //         hack_bitmap_extension.positive_bin_array_bitmap;
+    //     bitmap_extension.negative_bin_array_bitmap =
+    //         hack_bitmap_extension.negative_bin_array_bitmap;
 
-        Some(bitmap_extension)
-    } else {
-        None
-    };
-
-    // let bitmap_extension = Some(bitmap_extension);
+    //     Some(bitmap_extension)
+    // } else {
+    //     None
+    // };
 
     let bin_arrays_for_swap = get_bin_array_pubkeys_for_swap(
         lb_pair,
@@ -387,14 +376,85 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
         .collect::<Vec<_>>();
 
     // let compute_budget_ix = ComputeBudgetInstruction::set_compute_unit_limit(1_400_000);
+    let mut is_creating_ata = false;
+    let mut ata_ix = Vec::new();
+    let user_output_token_account = spl_associated_token_account::get_associated_token_address(
+        &program.payer(),
+        &user_token_out,
+    );
+    if let std::result::Result::Ok(response) = program
+        .async_rpc()
+        .get_token_account_balance(&user_output_token_account)
+        .await
+    {
+        if let Some(_amount) = response.ui_amount {
+            // println!("payer has valid token account.");
+        } else {
+            // println!("will create token account for payer");
+            is_creating_ata = true;
+            // ata_ix = spl_associated_token_account::instruction::create_associated_token_account(
+            //     &program.payer(),
+            //     &program.payer(),
+            //     &user_token_out,
+            //     &anchor_spl::token::ID,
+            // );
+            ata_ix = create_ata_token_or_not(
+                &program.payer(),
+                &program.payer(),
+                &user_token_out,
+                Some(&anchor_spl::token::ID),
+            );
+        }
+    } else {
+        // println!("Adding create ata ix for payer");
+        is_creating_ata = true;
+        // ata_ix = spl_associated_token_account::instruction::create_associated_token_account(
+        //     &program.payer(),
+        //     &program.payer(),
+        //     &user_token_out,
+        //     &anchor_spl::token::ID,
+        // );
+        ata_ix = create_ata_token_or_not(
+            &program.payer(),
+            &program.payer(),
+            &user_token_out,
+            Some(&anchor_spl::token::ID),
+        );
+    }
 
     let request_builder = program.request();
+
     let instructions = request_builder
         // .instruction(compute_budget_ix)
         .accounts(accounts)
         .accounts(remaining_accounts)
         .args(ix)
-        .instructions();
+        .instructions()?;
 
-    Ok(instructions?)
+    let mut ixs = Vec::new();
+    if is_creating_ata {
+        ixs.extend(ata_ix);
+        ixs.extend(instructions);
+    } else {
+        ixs.extend(instructions);
+    }
+
+    Ok(ixs)
+}
+
+pub fn create_ata_token_or_not(
+    funding: &Pubkey,
+    owner: &Pubkey,
+    mint: &Pubkey,
+    token_program: Option<&Pubkey>,
+) -> Vec<Instruction> {
+    vec![
+        spl_associated_token_account::instruction::create_associated_token_account_idempotent(
+            funding,
+            owner,
+            mint,
+            // token_program.unwrap_or(&spl_token::id()),
+            token_program.unwrap_or(&anchor_spl::token::ID),
+        ),
+    ]
 }
