@@ -265,36 +265,46 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
     //     .ok();
 
     // MI: use hack way
-    // let data_bytes = program
-    //     .async_rpc()
-    //     .get_account_data(&bitmap_extension_key)
-    //     .await?;
-
-    let config = program.async_rpc().commitment();
     let data_bytes = program
         .async_rpc()
-        .get_account_with_commitment(&bitmap_extension_key, config)
-        .await?
-        .value
-        .ok_or(anchor_client::ClientError::AccountNotFound)?
-        .data;
+        .get_account_data(&bitmap_extension_key)
+        .await
+        .ok();
+
+    // let config = program.async_rpc().commitment();
+    // let data_bytes = program
+    //     .async_rpc()
+    //     .get_account_with_commitment(&bitmap_extension_key, config)
+    //     .await?
+    //     .value
+    //     .ok_or(anchor_client::ClientError::AccountNotFound)?
+    //     .data;
 
     println!(
-        "Pass through get_account_with_commitment of bitmap_extension_key: {}",
-        &bitmap_extension_key
+        "Pass through get_account_data of bitmap_extension_key: {} and date_bytes is {:#?}",
+        &bitmap_extension_key, data_bytes
     );
 
-    let hack_bitmap_extension =
-        bin_array_bitmap_extension::hack::BinArrayBitmapExtension::try_from_bytes(
-            &data_bytes[8..],
-        )?;
+    let bitmap_extension = if data_bytes.is_some() {
+        let exact_data_bytes = &data_bytes.unwrap()[8..];
+        let hack_bitmap_extension =
+            bin_array_bitmap_extension::hack::BinArrayBitmapExtension::try_from_bytes(
+                &exact_data_bytes,
+            )?;
 
-    let mut bitmap_extension: BinArrayBitmapExtension = BinArrayBitmapExtension::default();
-    bitmap_extension.lb_pair = hack_bitmap_extension.lb_pair;
-    bitmap_extension.positive_bin_array_bitmap = hack_bitmap_extension.positive_bin_array_bitmap;
-    bitmap_extension.negative_bin_array_bitmap = hack_bitmap_extension.negative_bin_array_bitmap;
+        let mut bitmap_extension: BinArrayBitmapExtension = BinArrayBitmapExtension::default();
+        bitmap_extension.lb_pair = hack_bitmap_extension.lb_pair;
+        bitmap_extension.positive_bin_array_bitmap =
+            hack_bitmap_extension.positive_bin_array_bitmap;
+        bitmap_extension.negative_bin_array_bitmap =
+            hack_bitmap_extension.negative_bin_array_bitmap;
 
-    let bitmap_extension = Some(bitmap_extension);
+        Some(bitmap_extension)
+    } else {
+        None
+    };
+
+    // let bitmap_extension = Some(bitmap_extension);
 
     let bin_arrays_for_swap = get_bin_array_pubkeys_for_swap(
         lb_pair,
