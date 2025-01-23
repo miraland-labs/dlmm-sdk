@@ -385,13 +385,13 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
     // let compute_budget_ix = ComputeBudgetInstruction::set_compute_unit_limit(1_400_000);
     let mut is_creating_ata = false;
     let mut ata_ix = Vec::new();
-    let user_output_token_account = spl_associated_token_account::get_associated_token_address(
-        &program.payer(),
-        &user_token_out,
-    );
+    // let user_output_token_account = spl_associated_token_account::get_associated_token_address(
+    //     &program.payer(),
+    //     &user_mint_out,
+    // );
     if let std::result::Result::Ok(response) = program
         .async_rpc()
-        .get_token_account_balance(&user_output_token_account)
+        .get_token_account_balance(&user_token_out)
         .await
     {
         if let Some(_amount) = response.ui_amount {
