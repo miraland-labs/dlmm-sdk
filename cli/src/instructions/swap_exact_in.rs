@@ -402,7 +402,7 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
                 &program.payer(),
                 &program.payer(),
                 &user_token_out,
-                Some(&anchor_spl::token::ID),
+                Some(&anchor_spl::token_2022::ID),
             );
         }
     } else {
@@ -418,7 +418,7 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
             &program.payer(),
             &program.payer(),
             &user_token_out,
-            Some(&anchor_spl::token::ID),
+            Some(&anchor_spl::token_2022::ID),
         );
     }
 
@@ -454,7 +454,7 @@ pub fn create_ata_token_or_not(
             owner,
             mint,
             // token_program.unwrap_or(&spl_token::id()),
-            token_program.unwrap_or(&anchor_spl::token::ID),
+            token_program.unwrap_or(&anchor_spl::token_2022::ID),
         ),
     ]
 }
