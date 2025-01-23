@@ -398,11 +398,11 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
             //     &user_token_out,
             //     &anchor_spl::token::ID,
             // );
-            ata_ix = create_ata_token_or_not(
+            ata_ix = create_ata_token(
                 &program.payer(),
                 &program.payer(),
                 &user_token_out,
-                Some(&anchor_spl::token_2022::ID),
+                Some(&anchor_spl::token::ID),
             );
         }
     } else {
@@ -414,11 +414,11 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
         //     &user_token_out,
         //     &anchor_spl::token::ID,
         // );
-        ata_ix = create_ata_token_or_not(
+        ata_ix = create_ata_token(
             &program.payer(),
             &program.payer(),
             &user_token_out,
-            Some(&anchor_spl::token_2022::ID),
+            Some(&anchor_spl::token::ID),
         );
     }
 
@@ -442,6 +442,7 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
     Ok(ixs)
 }
 
+// spl-token-2022
 pub fn create_ata_token_or_not(
     funding: &Pubkey,
     owner: &Pubkey,
@@ -455,6 +456,24 @@ pub fn create_ata_token_or_not(
             mint,
             // token_program.unwrap_or(&spl_token::id()),
             token_program.unwrap_or(&anchor_spl::token_2022::ID),
+        ),
+    ]
+}
+
+// spl-token
+pub fn create_ata_token(
+    funding: &Pubkey,
+    owner: &Pubkey,
+    mint: &Pubkey,
+    token_program: Option<&Pubkey>,
+) -> Vec<Instruction> {
+    vec![
+        spl_associated_token_account::instruction::create_associated_token_account(
+            funding,
+            owner,
+            mint,
+            // token_program.unwrap_or(&spl_token::id()),
+            token_program.unwrap_or(&anchor_spl::token::ID),
         ),
     ]
 }
