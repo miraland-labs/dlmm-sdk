@@ -251,6 +251,13 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
         )
     };
 
+    // MI added
+    let (_user_mint_in, user_mint_out) = if swap_for_y {
+        (lb_pair_state.token_x_mint, lb_pair_state.token_y_mint)
+    } else {
+        (lb_pair_state.token_y_mint, lb_pair_state.token_x_mint)
+    };
+
     let (bitmap_extension_key, _bump) = derive_bin_array_bitmap_extension(lb_pair);
 
     // // MI
@@ -398,10 +405,10 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
             //     &user_token_out,
             //     &anchor_spl::token::ID,
             // );
-            ata_ix = create_ata_token(
+            ata_ix = create_ata_token_or_not(
                 &program.payer(),
                 &program.payer(),
-                &user_token_out,
+                &user_mint_out,
                 Some(&anchor_spl::token::ID),
             );
         }
@@ -414,10 +421,10 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
         //     &user_token_out,
         //     &anchor_spl::token::ID,
         // );
-        ata_ix = create_ata_token(
+        ata_ix = create_ata_token_or_not(
             &program.payer(),
             &program.payer(),
-            &user_token_out,
+            &user_mint_out,
             Some(&anchor_spl::token::ID),
         );
     }
@@ -442,7 +449,6 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
     Ok(ixs)
 }
 
-// spl-token-2022
 pub fn create_ata_token_or_not(
     funding: &Pubkey,
     owner: &Pubkey,
@@ -455,12 +461,11 @@ pub fn create_ata_token_or_not(
             owner,
             mint,
             // token_program.unwrap_or(&spl_token::id()),
-            token_program.unwrap_or(&anchor_spl::token_2022::ID),
+            token_program.unwrap_or(&anchor_spl::token::ID),
         ),
     ]
 }
 
-// spl-token
 pub fn create_ata_token(
     funding: &Pubkey,
     owner: &Pubkey,
