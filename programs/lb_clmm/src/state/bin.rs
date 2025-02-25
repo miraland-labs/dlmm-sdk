@@ -390,6 +390,15 @@ pub struct BinArray {
 }
 
 impl BinArray {
+    pub fn try_from_bytes(data: &[u8]) -> core::result::Result<&Self, ProgramError> {
+        bytemuck::try_from_bytes::<Self>(data).or(Err(ProgramError::InvalidAccountData))
+    }
+    pub fn try_from_bytes_mut(data: &mut [u8]) -> core::result::Result<&mut Self, ProgramError> {
+        bytemuck::try_from_bytes_mut::<Self>(data).or(Err(ProgramError::InvalidAccountData))
+    }
+}
+
+impl BinArray {
     pub fn is_zero_liquidity(&self) -> bool {
         for bin in self.bins.iter() {
             if !bin.is_zero_liquidity() {
