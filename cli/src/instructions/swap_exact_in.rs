@@ -312,6 +312,8 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
         3,
     )?;
 
+    println!("Pass through getting bin_arrays_for_swap");
+
     let bin_arrays = program
         .async_rpc()
         .get_multiple_accounts(&bin_arrays_for_swap)
@@ -328,6 +330,8 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
         .collect::<Option<HashMap<Pubkey, BinArray>>>()
         .context("Failed to fetch bin arrays")?;
 
+    println!("Pass through getting bin_arrays");
+
     let clock = program
         .async_rpc()
         .get_account(&Clock::id())
@@ -336,6 +340,8 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
             let clock: Clock = bincode::deserialize(account.data.as_ref())?;
             Ok(clock)
         })??;
+
+    println!("Pass through getting clock");
 
     let quote = quote_exact_in(
         lb_pair,
@@ -347,6 +353,8 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
         clock.unix_timestamp as u64,
         clock.slot,
     )?;
+
+    println!("Pass through getting quote with quote_exact_in");
 
     let (event_authority, _bump) =
         Pubkey::find_program_address(&[b"__event_authority"], &lb_clmm::ID);
@@ -370,6 +378,8 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
         event_authority,
         program: lb_clmm::ID,
     };
+
+    println!("Pass through getting accounts with accounts::Swap");
 
     // 100 bps slippage
     let min_amount_out = quote.amount_out * 9900 / BASIS_POINT_MAX as u64;
