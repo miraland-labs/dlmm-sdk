@@ -67,6 +67,7 @@ pub struct SwapResult {
 }
 
 #[zero_copy]
+#[repr(C)]
 #[derive(Default, Debug, InitSpace)]
 pub struct Bin {
     /// Amount of token X in the bin. This already excluded protocol fees.
@@ -87,6 +88,16 @@ pub struct Bin {
     pub amount_x_in: u128,
     /// Total token Y swap into he bin. Only used for tracking purpose.
     pub amount_y_in: u128,
+}
+
+impl Bin {
+    pub fn try_from_bytes(data: &[u8]) -> core::result::Result<&Self, ProgramError> {
+        bytemuck::try_from_bytes::<Self>(&data[8..]).or(Err(ProgramError::InvalidAccountData))
+    }
+    pub fn try_from_bytes_mut(data: &mut [u8]) -> core::result::Result<&mut Self, ProgramError> {
+        bytemuck::try_from_bytes_mut::<Self>(&mut data[8..])
+            .or(Err(ProgramError::InvalidAccountData))
+    }
 }
 
 impl Bin {
@@ -391,10 +402,11 @@ pub struct BinArray {
 
 impl BinArray {
     pub fn try_from_bytes(data: &[u8]) -> core::result::Result<&Self, ProgramError> {
-        bytemuck::try_from_bytes::<Self>(data).or(Err(ProgramError::InvalidAccountData))
+        bytemuck::try_from_bytes::<Self>(&data[8..]).or(Err(ProgramError::InvalidAccountData))
     }
     pub fn try_from_bytes_mut(data: &mut [u8]) -> core::result::Result<&mut Self, ProgramError> {
-        bytemuck::try_from_bytes_mut::<Self>(data).or(Err(ProgramError::InvalidAccountData))
+        bytemuck::try_from_bytes_mut::<Self>(&mut data[8..])
+            .or(Err(ProgramError::InvalidAccountData))
     }
 }
 

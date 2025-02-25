@@ -325,7 +325,7 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
             Some((
                 key,
                 // BinArray::try_deserialize(&mut account.data.as_ref()).ok()?,
-                *BinArray::try_from_bytes(&account.data[8..]).ok()?,
+                *BinArray::try_from_bytes(&account.data).ok()?,
             ))
         })
         .collect::<Option<HashMap<Pubkey, BinArray>>>()
