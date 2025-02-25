@@ -374,6 +374,7 @@ pub enum LayoutVersion {
 }
 
 #[account(zero_copy)]
+#[repr(C)]
 #[derive(Debug, InitSpace)]
 /// An account to contain a range of bin. For example: Bin 100 <-> 200.
 /// For example:
