@@ -172,6 +172,8 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
 
     let lb_pair_state: LbPair = program.account(lb_pair).await?;
 
+    println!("Pass through fetching lb_pair_state account");
+
     // // MI
     // let data_bytes = program.async_rpc().get_account_data(&lb_pair).await?;
     // assert_eq!(data_bytes.len(), 904);
@@ -260,16 +262,18 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
 
     let (bitmap_extension_key, _bump) = derive_bin_array_bitmap_extension(lb_pair);
 
-    // // MI
-    // println!(
-    //     "derived bitmap_extension_key: {} from lb_pair: {}",
-    //     &bitmap_extension_key, &lb_pair
-    // );
+    // MI
+    println!(
+        "derived bitmap_extension_key: {} from lb_pair: {}",
+        &bitmap_extension_key, &lb_pair
+    );
 
     let bitmap_extension = program
         .account::<BinArrayBitmapExtension>(bitmap_extension_key)
         .await
         .ok();
+
+    println!("Pass through fetching bitmap_extension account");
 
     // // MI: use hack way
     // let data_bytes = program
