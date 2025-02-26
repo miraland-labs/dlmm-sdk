@@ -18,9 +18,9 @@ use lb_clmm::accounts;
 use lb_clmm::constants::BASIS_POINT_MAX;
 use lb_clmm::instruction;
 
-use lb_clmm::state::bin::BinArray;
+use lb_clmm::state::bin::{self, Bin, BinArray};
 use lb_clmm::state::bin_array_bitmap_extension::{self, BinArrayBitmapExtension};
-use lb_clmm::state::lb_pair::{hack, LbPair, RewardInfo};
+use lb_clmm::state::lb_pair::{self, LbPair, RewardInfo};
 use lb_clmm::utils::pda::*;
 
 #[derive(Debug)]
@@ -175,7 +175,7 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
     // MI
     let data_bytes = program.async_rpc().get_account_data(&lb_pair).await?;
     assert_eq!(data_bytes.len(), 904);
-    let hack_lb_pair_state = hack::LbPair::try_from_bytes(&data_bytes[8..])?;
+    let hack_lb_pair_state = lb_pair::hack::LbPair::try_from_bytes(&data_bytes[8..])?;
 
     let mut lb_pair_state: LbPair = LbPair::default();
 
@@ -322,10 +322,44 @@ pub async fn swap_exact_in_instructions<C: Deref<Target = impl Signer> + Clone>(
         .zip(bin_arrays_for_swap.iter())
         .map(|(account, &key)| {
             let account = account?;
+
+            // MI
+            let data_bytes = account.data;
+            let hack_bin_array =
+                bin::hack::BinArray::try_from_bytes(&data_bytes[8..]).expect("should be bin array");
+
+            let bin_array: BinArray = BinArray {
+                index: hack_bin_array.index,
+                version: hack_bin_array.version,
+                _padding: hack_bin_array._padding,
+                lb_pair: hack_bin_array.lb_pair,
+                bins: hack_bin_array
+                    .bins
+                    .iter()
+                    .map(|b| Bin {
+                        amount_x: b.amount_x,
+                        amount_y: b.amount_y,
+                        price: b.price.as_u128(),
+                        liquidity_supply: b.liquidity_supply.as_u128(),
+                        reward_per_token_stored: [
+                            b.reward_per_token_stored[0].as_u128(),
+                            b.reward_per_token_stored[1].as_u128(),
+                        ],
+                        fee_amount_x_per_token_stored: b.fee_amount_x_per_token_stored.as_u128(),
+                        fee_amount_y_per_token_stored: b.fee_amount_y_per_token_stored.as_u128(),
+                        amount_x_in: b.amount_x_in.as_u128(),
+                        amount_y_in: b.amount_y_in.as_u128(),
+                    })
+                    .collect::<Vec<_>>()
+                    .try_into()
+                    .unwrap(),
+            };
+
             Some((
                 key,
                 // BinArray::try_deserialize(&mut account.data.as_ref()).ok()?,
-                *BinArray::try_from_bytes(&account.data).ok()?,
+                // *BinArray::try_from_bytes(&account.data).ok()?, // MI
+                bin_array,
             ))
         })
         .collect::<Option<HashMap<Pubkey, BinArray>>>()

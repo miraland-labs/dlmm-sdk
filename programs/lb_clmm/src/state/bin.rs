@@ -15,6 +15,82 @@ use crate::{
 use anchor_lang::prelude::*;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 use num_integer::Integer;
+
+// MI: hack workaround for decode err: from_bytes>TargetAlignmentGreaterAndInputNotAligned
+// which is caused by newer rust version (layout change)
+pub mod hack {
+    use crate::constants::{MAX_BIN_PER_ARRAY, NUM_REWARDS};
+    use anchor_lang::prelude::*;
+    use bytemuck::{Pod, Zeroable};
+    use solana_program::{program_error::ProgramError, pubkey::Pubkey};
+
+    #[derive(Copy, Clone, bytemuck::Zeroable, bytemuck::Pod, Debug)]
+    #[repr(C)]
+    pub struct U128(pub [u8; 16]);
+
+    impl U128 {
+        pub fn as_u128(&self) -> core::primitive::u128 {
+            core::primitive::u128::from_le_bytes(self.0)
+        }
+    }
+
+    #[repr(C)]
+    #[derive(Clone, Copy, Debug, Pod, Zeroable)]
+    pub struct Bin {
+        /// Amount of token X in the bin. This already excluded protocol fees.
+        pub amount_x: u64,
+        /// Amount of token Y in the bin. This already excluded protocol fees.
+        pub amount_y: u64,
+        /// Bin price
+        pub price: U128,
+        /// Liquidities of the bin. This is the same as LP mint supply. q-number
+        pub liquidity_supply: U128,
+        /// reward_a_per_token_stored
+        pub reward_per_token_stored: [U128; NUM_REWARDS],
+        /// Swap fee amount of token X per liquidity deposited.
+        pub fee_amount_x_per_token_stored: U128,
+        /// Swap fee amount of token Y per liquidity deposited.
+        pub fee_amount_y_per_token_stored: U128,
+        /// Total token X swap into the bin. Only used for tracking purpose.
+        pub amount_x_in: U128,
+        /// Total token Y swap into he bin. Only used for tracking purpose.
+        pub amount_y_in: U128,
+    }
+
+    impl Bin {
+        pub fn try_from_bytes(data: &[u8]) -> core::result::Result<&Self, ProgramError> {
+            bytemuck::try_from_bytes::<Self>(data).or(Err(ProgramError::InvalidAccountData))
+        }
+        pub fn try_from_bytes_mut(
+            data: &mut [u8],
+        ) -> core::result::Result<&mut Self, ProgramError> {
+            bytemuck::try_from_bytes_mut::<Self>(data).or(Err(ProgramError::InvalidAccountData))
+        }
+    }
+
+    #[repr(C)]
+    #[derive(Clone, Copy, Debug, Pod, Zeroable)]
+    pub struct BinArray {
+        pub index: i64, // Larger size to make bytemuck "safe" (correct alignment)
+        /// Version of binArray
+        pub version: u8,
+        pub _padding: [u8; 7],
+        pub lb_pair: Pubkey,
+        pub bins: [Bin; MAX_BIN_PER_ARRAY],
+    }
+
+    impl BinArray {
+        pub fn try_from_bytes(data: &[u8]) -> core::result::Result<&Self, ProgramError> {
+            bytemuck::try_from_bytes::<Self>(data).or(Err(ProgramError::InvalidAccountData))
+        }
+        pub fn try_from_bytes_mut(
+            data: &mut [u8],
+        ) -> core::result::Result<&mut Self, ProgramError> {
+            bytemuck::try_from_bytes_mut::<Self>(data).or(Err(ProgramError::InvalidAccountData))
+        }
+    }
+}
+
 /// Calculate out token amount based on liquidity share and supply
 #[inline]
 pub fn get_out_amount(
@@ -88,16 +164,6 @@ pub struct Bin {
     pub amount_x_in: u128,
     /// Total token Y swap into he bin. Only used for tracking purpose.
     pub amount_y_in: u128,
-}
-
-impl Bin {
-    pub fn try_from_bytes(data: &[u8]) -> core::result::Result<&Self, ProgramError> {
-        bytemuck::try_from_bytes::<Self>(&data[8..]).or(Err(ProgramError::InvalidAccountData))
-    }
-    pub fn try_from_bytes_mut(data: &mut [u8]) -> core::result::Result<&mut Self, ProgramError> {
-        bytemuck::try_from_bytes_mut::<Self>(&mut data[8..])
-            .or(Err(ProgramError::InvalidAccountData))
-    }
 }
 
 impl Bin {
@@ -398,16 +464,6 @@ pub struct BinArray {
     pub _padding: [u8; 7],
     pub lb_pair: Pubkey,
     pub bins: [Bin; MAX_BIN_PER_ARRAY],
-}
-
-impl BinArray {
-    pub fn try_from_bytes(data: &[u8]) -> core::result::Result<&Self, ProgramError> {
-        bytemuck::try_from_bytes::<Self>(&data[8..]).or(Err(ProgramError::InvalidAccountData))
-    }
-    pub fn try_from_bytes_mut(data: &mut [u8]) -> core::result::Result<&mut Self, ProgramError> {
-        bytemuck::try_from_bytes_mut::<Self>(&mut data[8..])
-            .or(Err(ProgramError::InvalidAccountData))
-    }
 }
 
 impl BinArray {
